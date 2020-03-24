@@ -87,7 +87,6 @@ async def module(bot, message, argument):
                     category = c
                     break
 
-            else:
                 archive = None
                 for c in guild.categories:
                     if c.name == 'archive':
@@ -96,13 +95,13 @@ async def module(bot, message, argument):
                 if archive is None:
                     log("[Bot] Nothing is archived.")
 
-                category = await guild.create_category_channel(name)
-                #Turn the name into regex to find all channels of that type
-                replaced_name = name.lower().replace(' ', '.') + ".+"
-                compiled_name = re.compile(replaced_name)
-                for channel in archive.channels:
-                    if bool(re.match(replaced_name, channel.name)):
-                        await channel.edit(category=category)
+            category = await guild.create_category_channel(name)
+            #Turn the name into regex to find all channels of that type
+            replaced_name = name.lower().replace(' ', '')
+            for channel in archive.channels:
+                if replaced_name in channel.name.replace('-',''):
+                    await channel.edit(category=category)
+            await guild.create_voice_channel(f"{name.replace(' ', '-')}-voice", category=category)
 
 
         except KeyError:
