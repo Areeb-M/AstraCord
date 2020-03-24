@@ -1,4 +1,5 @@
 from core import *
+import re
 
 '''
 class Submodule:
@@ -43,6 +44,7 @@ async def module(bot, message, argument):
         except discord.Forbidden:
             log("[Bot] Insufficient permissions to create submodule channels.")
             # TODO: error relaying to users
+
     elif subcommand == "archive":
         try:
             name = args[0].lower()
@@ -70,6 +72,38 @@ async def module(bot, message, argument):
                     else:
                         await channel.delete()
                 await category.delete()
+        except KeyError:
+            log("[Bot] Insufficient arguments to archive submodule channels.")
+            # TODO: error relaying to users            
+
+    elif subcommand == "unarchive":
+        try:
+            name = args[0].lower()
+            guild = message.guild
+
+            category = None
+            for c in guild.categories:
+                if c.name == name:
+                    category = c
+                    break
+
+            else:
+                archive = None
+                for c in guild.categories:
+                    if c.name == 'archive':
+                        archive = c
+                        break
+                if archive is None:
+                    log("[Bot] Nothing is archived.")
+
+                category = await guild.create_category_channel(name)
+                #Turn the name into regex to find all channels of that type
+                replaced_name = name.lower().replace(' ', '.') + ".+"
+                compiled_name = re.compile(replaced_name)
+                for channel in archive.channels:
+                    if bool(re.match(replaced_name, channel.name)):
+                        await channel.edit(category=category)
+
 
         except KeyError:
             log("[Bot] Insufficient arguments to archive submodule channels.")
