@@ -11,7 +11,8 @@ class Bot(discord.Client):
         initialize_log(data_path)
         super().__init__()
 
-        self.config_path = data_path + '\\config.txt'
+        self.data_path = data_path
+        self.config_path = self.data_path + '\\config.txt'
         self.config_variables = {'prefix': 'a!'}
         self.load_config()
 
