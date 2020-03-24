@@ -35,9 +35,11 @@ class Bot(discord.Client):
             content = message.content[len(self.value('prefix')):]
             try:
                 command, argument = content.split(' ', 1)
+                # TODO: better argument parsing
+                argument = content.split(' ')
             except ValueError:
                 command = content
-                argument = ''
+                argument = ['']
 
             try:
                 await Bot.command_dictionary[command](self, message, argument)
