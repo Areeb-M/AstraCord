@@ -37,6 +37,9 @@ async def module(bot, message, argument):
             await guild.create_voice_channel(f"{name.replace(' ', '-')}-voice", category=category)
             # For some reason, voice channels do not have the same naming restriction as text channels,
             # which is the reason for the string manipulation in that last command.
+
+            # Make sure the new category is above the archive category
+            await category.edit(position=category.position - 1)
         except KeyError:
             log("[Bot] Not enough arguments for module create command!")
             # TODO: error relaying to users
@@ -96,13 +99,16 @@ async def module(bot, message, argument):
                     log("[Bot] Nothing is archived.")
 
             category = await guild.create_category_channel(name)
-            #Turn the name into regex to find all channels of that type
+
+            # Make sure the new category is above the archive category
+            await category.edit(position=category.position - 1)
+
+            # Turn the name into regex to find all channels of that type
             replaced_name = name.lower().replace(' ', '')
             for channel in archive.channels:
                 if replaced_name in channel.name.replace('-',''):
                     await channel.edit(category=category)
             await guild.create_voice_channel(f"{name.replace(' ', '-')}-voice", category=category)
-
 
         except KeyError:
             log("[Bot] Insufficient arguments to archive submodule channels.")
