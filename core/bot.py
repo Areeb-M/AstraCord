@@ -13,8 +13,14 @@ class Bot(discord.Client):
 
         self.data_path = data_path
         self.config_path = self.data_path + '\\config.txt'
-        self.config_variables = {'prefix': 'a!'}
+        self.config_variables = {}
         self.load_config()
+
+        # Register Default Config Values if they don't exist
+        self.register_config_variable('prefix', 'a!')
+        self.register_config_variable('user_perm_int', 0)
+        self.register_config_variable('mod_perm_int', 8192)
+        self.register_config_variable('admin_perm_int', 8)
 
         for func in Bot.initialization_sequence:
             func(self)
@@ -40,7 +46,12 @@ class Bot(discord.Client):
                 argument = ''
 
             try:
-                await Bot.command_dictionary[command](self, message, argument)
+                permission = Bot.command_dictionary[command].permission.value
+                check = ['user_perm_int', 'mod_perm_int', 'admin_perm_int'][permission - 1]
+                if message.author.guild_permissions.is_superset(discord.Permissions(self.value(check))):
+                    await Bot.command_dictionary[command](self, message, argument)
+                else:
+                    log(f"[Bot] {message.author.name} has insufficient perms to execute {command}")
             except KeyError:
                 # Invalid Command
                 pass
